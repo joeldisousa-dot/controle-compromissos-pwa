@@ -1,0 +1,1174 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1220">
+
+  <title>Controle de Compromissos</title>
+
+  <!-- Manifesto do aplicativo -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #111c2e;
+      --panel2: #17243a;
+      --border: #293950;
+      --text: #f1f5f9;
+      --muted: #9aa9bd;
+      --gold: #e7b94f;
+      --gold-light: #f5d47d;
+      --green: #35c98b;
+      --red: #f16c72;
+      --blue: #58a6ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      color: var(--gold);
+      font-size: 27px;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .painel {
+      padding: 22px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+    }
+
+    .titulo {
+      margin: 0 0 18px;
+      color: var(--gold-light);
+      font-size: 18px;
+    }
+
+    .resumo {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .resumo-card {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+
+    .resumo-card span {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .resumo-card strong {
+      color: var(--gold);
+      font-size: 28px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .campo {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .campo.completo {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 45px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      color: var(--text);
+      background: #0c1728;
+      font-size: 14px;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--gold);
+    }
+
+    input[type="date"],
+    input[type="time"] {
+      color-scheme: dark;
+    }
+
+    .acoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      min-height: 40px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .principal {
+      color: #1b2431;
+      background: var(--gold);
+    }
+
+    .principal:hover {
+      background: var(--gold-light);
+    }
+
+    .secundario {
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: var(--panel2);
+    }
+
+    .sucesso {
+      color: #062719;
+      background: var(--green);
+    }
+
+    .perigo {
+      color: white;
+      background: #a83b45;
+    }
+
+    .mensagem {
+      display: none;
+      padding: 12px;
+      margin-top: 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .mensagem.ok {
+      display: block;
+      color: #a7f3d0;
+      border: 1px solid #1d7554;
+      background: #103a2d;
+    }
+
+    .mensagem.erro {
+      display: block;
+      color: #fecaca;
+      border: 1px solid #873b43;
+      background: #401e27;
+    }
+
+    .filtros {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .lista {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--panel2);
+    }
+
+    .item.concluido {
+      opacity: .65;
+    }
+
+    .item.concluido .descricao {
+      text-decoration: line-through;
+    }
+
+    .dados {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .descricao {
+      margin-bottom: 7px;
+      overflow-wrap: anywhere;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .detalhes {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 9px;
+      margin-top: 7px;
+      border-radius: 20px;
+      color: #a7f3d0;
+      background: #174b3a;
+      font-size: 11px;
+    }
+
+    .status.pendente {
+      color: #f8df9b;
+      background: #55421c;
+    }
+
+    .acoes-item {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 7px;
+    }
+
+    .acoes-item .btn {
+      min-height: 34px;
+      padding: 7px 10px;
+      font-size: 11px;
+    }
+
+    .vazio {
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    .estado {
+      padding: 13px;
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      background: #0c1728;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .estado.ok {
+      color: #a7f3d0;
+      border-color: #1d7554;
+      background: #103a2d;
+    }
+
+    .estado.aviso {
+      color: #f8df9b;
+      border-color: #705a27;
+      background: #332a18;
+    }
+
+    .estado.erro {
+      color: #fecaca;
+      border-color: #873b43;
+      background: #401e27;
+    }
+
+    .rodape {
+      padding: 15px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 13px;
+      }
+
+      header h1 {
+        font-size: 22px;
+      }
+
+      .resumo {
+        grid-template-columns: 1fr;
+        gap: 9px;
+      }
+
+      .resumo-card {
+        padding: 13px;
+      }
+
+      .resumo-card strong {
+        font-size: 23px;
+      }
+
+      .grid,
+      .filtros {
+        grid-template-columns: 1fr;
+      }
+
+      .item {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .acoes-item {
+        justify-content: flex-start;
+      }
+
+      .painel {
+        padding: 16px;
+      }
+    }
+  </style>
+
+  <!-- OneSignal Web SDK -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+</head>
+
+<body>
+  <main class="container">
+
+    <header>
+      <h1>📅 Controle de Compromissos</h1>
+      <p>Organize seus horários e receba lembretes dos seus compromissos.</p>
+    </header>
+
+    <section class="resumo">
+      <div class="resumo-card">
+        <span>Compromissos de hoje</span>
+        <strong id="totalHoje">0</strong>
+      </div>
+
+      <div class="resumo-card">
+        <span>Pendentes</span>
+        <strong id="totalPendentes">0</strong>
+      </div>
+
+      <div class="resumo-card">
+        <span>Concluídos</span>
+        <strong id="totalConcluidos">0</strong>
+      </div>
+    </section>
+
+    <section class="painel">
+      <h2 class="titulo" id="tituloFormulario">Novo compromisso</h2>
+
+      <form id="formulario">
+        <input type="hidden" id="idSelecionado">
+
+        <div class="grid">
+          <div class="campo">
+            <label for="data">Data</label>
+            <input type="date" id="data" required>
+          </div>
+
+          <div class="campo">
+            <label for="horario">Horário</label>
+            <input type="time" id="horario" required>
+          </div>
+
+          <div class="campo completo">
+            <label for="descricao">Descrição do compromisso</label>
+            <input
+              type="text"
+              id="descricao"
+              maxlength="250"
+              placeholder="Ex.: Reunião, consulta, pagamento..."
+              required
+            >
+          </div>
+        </div>
+
+        <div class="acoes">
+          <button type="submit" class="btn principal" id="btnSalvar">
+            Salvar compromisso
+          </button>
+
+          <button type="button" class="btn secundario" onclick="novoRegistro()">
+            Limpar campos
+          </button>
+        </div>
+
+        <div id="mensagem" class="mensagem"></div>
+      </form>
+    </section>
+
+    <section class="painel">
+      <h2 class="titulo">Meus compromissos</h2>
+
+      <div class="filtros">
+        <div class="campo">
+          <label for="filtro">Filtrar</label>
+          <select id="filtro">
+            <option value="todos">Todos</option>
+            <option value="pendentes">Pendentes</option>
+            <option value="concluidos">Concluídos</option>
+            <option value="hoje">Hoje</option>
+            <option value="futuros">Futuros</option>
+            <option value="atrasados">Atrasados</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="pesquisa">Pesquisar</label>
+          <input type="search" id="pesquisa" placeholder="Digite para pesquisar...">
+        </div>
+      </div>
+
+      <div id="lista" class="lista">
+        <div class="vazio">Carregando compromissos...</div>
+      </div>
+    </section>
+
+    <section class="painel">
+      <h2 class="titulo">🔔 Notificações no iPhone</h2>
+
+      <p class="detalhes">
+        Ative as notificações para receber lembretes do Controle de Compromissos.
+        Primeiro, adicione o aplicativo à Tela de Início do iPhone.
+      </p>
+
+      <div class="acoes">
+        <button class="btn principal" type="button" onclick="ativarPush()">
+          Ativar notificações push
+        </button>
+
+        <button class="btn secundario" type="button" onclick="testarPush()">
+          Testar notificação
+        </button>
+      </div>
+
+      <div id="estadoPush" class="estado">
+        Verificando configuração das notificações...
+      </div>
+    </section>
+
+    <section class="painel">
+      <h2 class="titulo">⏰ Horário diário dos lembretes</h2>
+
+      <div class="grid">
+        <div class="campo">
+          <label for="horarioAlerta">Horário do lembrete</label>
+          <input type="time" id="horarioAlerta" value="08:00">
+        </div>
+      </div>
+
+      <div class="acoes">
+        <button class="btn principal" type="button" onclick="salvarHorarioAlerta()">
+          Salvar horário
+        </button>
+      </div>
+    </section>
+
+    <footer class="rodape">
+      Controle de Compromissos
+    </footer>
+  </main>
+
+  <script>
+    "use strict";
+
+    // =====================================================
+    // CONFIGURAÇÕES
+    // =====================================================
+
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbzKQJp6Uf7goVkXA0yaeQSxMs3-XdH9TvWyeG3Lmx1FpfWa7yOOwqRfAY_re7R4uu4/exec";
+
+    // Preencher depois de criar o aplicativo no OneSignal.
+    const ONESIGNAL_APP_ID = "COLOQUE_AQUI_O_APP_ID";
+
+    let compromissos = [];
+    let configuracoes = {};
+
+    const $ = id => document.getElementById(id);
+
+    // =====================================================
+    // API - COMUNICAÇÃO COM O GOOGLE APPS SCRIPT
+    // =====================================================
+
+    /*
+      IMPORTANTE:
+      Esta interface está hospedada fora do Apps Script.
+      O Code.gs precisará disponibilizar uma API JSONP.
+
+      Formato esperado:
+      ?action=carregarDados&callback=nomeCallback
+
+      Para operações com dados:
+      ?action=adicionarCompromisso&payload=JSON&callback=nomeCallback
+
+      As rotas serão implementadas no Code.gs na próxima etapa.
+    */
+
+    function chamarAPI(action, payload = {}) {
+      return new Promise((resolve, reject) => {
+        const callback = "callbackAPI_" +
+          Date.now() + "_" +
+          Math.random().toString(36).slice(2);
+
+        const script = document.createElement("script");
+        const parametros = new URLSearchParams();
+
+        parametros.set("action", action);
+        parametros.set("callback", callback);
+        parametros.set("payload", JSON.stringify(payload));
+
+        const timeout = setTimeout(() => {
+          finalizar();
+          reject(new Error(
+            "Tempo esgotado ao comunicar com o servidor. Verifique a API do Apps Script."
+          ));
+        }, 20000);
+
+        function finalizar() {
+          clearTimeout(timeout);
+          delete window[callback];
+          script.remove();
+        }
+
+        window[callback] = resultado => {
+          finalizar();
+
+          if (resultado && resultado.erro) {
+            reject(new Error(resultado.erro));
+            return;
+          }
+
+          resolve(resultado);
+        };
+
+        script.onerror = () => {
+          finalizar();
+          reject(new Error(
+            "Não foi possível acessar a API do Google Apps Script."
+          ));
+        };
+
+        script.src = API_URL + "?" + parametros.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    // =====================================================
+    // FUNÇÕES AUXILIARES
+    // =====================================================
+
+    function dataLocalHoje() {
+      const agora = new Date();
+
+      return agora.getFullYear() + "-" +
+        String(agora.getMonth() + 1).padStart(2, "0") + "-" +
+        String(agora.getDate()).padStart(2, "0");
+    }
+
+    function normalizar(valor) {
+      return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function escapar(valor) {
+      return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[caractere]);
+    }
+
+    function obter(item, campos) {
+      for (const campo of campos) {
+        if (item[campo] !== undefined && item[campo] !== null) {
+          return item[campo];
+        }
+      }
+      return "";
+    }
+
+    function obterId(item) {
+      return String(obter(item, ["id", "ID", "Id"]));
+    }
+
+    function obterData(item) {
+      return String(obter(item, ["data", "Data"])).slice(0, 10);
+    }
+
+    function obterHorario(item) {
+      return String(obter(item, [
+        "horario", "hora", "Horário", "Horario", "Hora"
+      ])).slice(0, 5);
+    }
+
+    function obterDescricao(item) {
+      return String(obter(item, [
+        "descricao", "Descrição", "Descricao"
+      ]));
+    }
+
+    function concluido(item) {
+      const status = normalizar(obter(item, [
+        "status", "Status", "situacao", "Situação"
+      ]));
+
+      return [
+        "concluido", "concluida", "sim", "true", "finalizado"
+      ].includes(status);
+    }
+
+    function formatarData(data) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return data;
+
+      const [ano, mes, dia] = data.split("-");
+      return dia + "/" + mes + "/" + ano;
+    }
+
+    function mensagem(texto, tipo = "ok") {
+      $("mensagem").textContent = texto;
+      $("mensagem").className = "mensagem " + tipo;
+
+      setTimeout(() => {
+        $("mensagem").className = "mensagem";
+      }, 5000);
+    }
+
+    // =====================================================
+    // CARREGAR DADOS
+    // =====================================================
+
+    async function carregarDados() {
+      $("lista").innerHTML =
+        '<div class="vazio">Carregando compromissos...</div>';
+
+      try {
+        const resposta = await chamarAPI("carregarDados");
+
+        compromissos = Array.isArray(resposta.compromissos)
+          ? resposta.compromissos
+          : [];
+
+        configuracoes = resposta.configuracoes || {};
+
+        if (configuracoes.horarioAlerta) {
+          $("horarioAlerta").value = configuracoes.horarioAlerta;
+        }
+
+        atualizarResumo();
+        renderizarLista();
+
+      } catch (erro) {
+        $("lista").innerHTML =
+          '<div class="vazio">' + escapar(erro.message) + '</div>';
+      }
+    }
+
+    // =====================================================
+    // RESUMO
+    // =====================================================
+
+    function atualizarResumo() {
+      const hoje = dataLocalHoje();
+
+      $("totalHoje").textContent = compromissos.filter(item =>
+        obterData(item) === hoje
+      ).length;
+
+      $("totalPendentes").textContent = compromissos.filter(item =>
+        !concluido(item)
+      ).length;
+
+      $("totalConcluidos").textContent = compromissos.filter(item =>
+        concluido(item)
+      ).length;
+    }
+
+    // =====================================================
+    // LISTAGEM E FILTROS
+    // =====================================================
+
+    function renderizarLista() {
+      const filtro = $("filtro").value;
+      const pesquisa = normalizar($("pesquisa").value);
+      const hoje = dataLocalHoje();
+
+      const filtrados = compromissos.filter(item => {
+        const data = obterData(item);
+        const statusConcluido = concluido(item);
+        const descricao = normalizar(obterDescricao(item));
+
+        if (pesquisa && !descricao.includes(pesquisa)) {
+          return false;
+        }
+
+        switch (filtro) {
+          case "pendentes":
+            return !statusConcluido;
+
+          case "concluidos":
+            return statusConcluido;
+
+          case "hoje":
+            return data === hoje;
+
+          case "futuros":
+            return data > hoje && !statusConcluido;
+
+          case "atrasados":
+            return data < hoje && !statusConcluido;
+
+          default:
+            return true;
+        }
+      });
+
+      filtrados.sort((a, b) => {
+        const x = obterData(a) + " " + obterHorario(a);
+        const y = obterData(b) + " " + obterHorario(b);
+        return x.localeCompare(y);
+      });
+
+      if (!filtrados.length) {
+        $("lista").innerHTML =
+          '<div class="vazio">Nenhum compromisso encontrado.</div>';
+        return;
+      }
+
+      $("lista").innerHTML = filtrados.map(item => {
+        const id = escapar(obterId(item));
+        const feito = concluido(item);
+
+        return `
+          <article class="item ${feito ? "concluido" : ""}">
+            <div class="dados">
+              <div class="descricao">
+                ${escapar(obterDescricao(item))}
+              </div>
+
+              <div class="detalhes">
+                📅 ${escapar(formatarData(obterData(item)))}
+                &nbsp; | &nbsp;
+                🕒 ${escapar(obterHorario(item))}
+              </div>
+
+              <span class="status ${feito ? "" : "pendente"}">
+                ${feito ? "Concluído" : "Pendente"}
+              </span>
+            </div>
+
+            <div class="acoes-item">
+              <button class="btn sucesso"
+                data-acao="status" data-id="${id}">
+                ${feito ? "Reabrir" : "Concluir"}
+              </button>
+
+              <button class="btn secundario"
+                data-acao="editar" data-id="${id}">
+                Editar
+              </button>
+
+              <button class="btn perigo"
+                data-acao="excluir" data-id="${id}">
+                Excluir
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    // =====================================================
+    // CADASTRO
+    // =====================================================
+
+    function novoRegistro() {
+      $("formulario").reset();
+      $("idSelecionado").value = "";
+      $("data").value = dataLocalHoje();
+
+      $("tituloFormulario").textContent = "Novo compromisso";
+      $("btnSalvar").textContent = "Salvar compromisso";
+      $("mensagem").className = "mensagem";
+    }
+
+    async function salvarCompromisso(evento) {
+      evento.preventDefault();
+
+      const id = $("idSelecionado").value;
+
+      const dados = {
+        id: id,
+        data: $("data").value,
+        horario: $("horario").value,
+        descricao: $("descricao").value.trim()
+      };
+
+      if (!dados.data || !dados.horario || !dados.descricao) {
+        mensagem("Preencha todos os campos.", "erro");
+        return;
+      }
+
+      $("btnSalvar").disabled = true;
+      $("btnSalvar").textContent = "Salvando...";
+
+      try {
+        if (id) {
+          await chamarAPI("atualizarCompromisso", dados);
+          mensagem("Compromisso atualizado com sucesso!");
+        } else {
+          await chamarAPI("adicionarCompromisso", dados);
+          mensagem("Compromisso cadastrado com sucesso!");
+        }
+
+        novoRegistro();
+        await carregarDados();
+
+      } catch (erro) {
+        mensagem("Erro ao salvar: " + erro.message, "erro");
+      } finally {
+        $("btnSalvar").disabled = false;
+        $("btnSalvar").textContent = "Salvar compromisso";
+      }
+    }
+
+    // =====================================================
+    // EDIÇÃO
+    // =====================================================
+
+    function editarCompromisso(id) {
+      const item = compromissos.find(registro =>
+        obterId(registro) === String(id)
+      );
+
+      if (!item) {
+        mensagem("Compromisso não encontrado.", "erro");
+        return;
+      }
+
+      $("idSelecionado").value = obterId(item);
+      $("data").value = obterData(item);
+      $("horario").value = obterHorario(item);
+      $("descricao").value = obterDescricao(item);
+
+      $("tituloFormulario").textContent = "Editar compromisso";
+      $("btnSalvar").textContent = "Atualizar compromisso";
+
+      $("formulario").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+
+    // =====================================================
+    // EXCLUSÃO
+    // =====================================================
+
+    async function excluirCompromisso(id) {
+      if (!confirm("Deseja realmente excluir este compromisso?")) return;
+
+      try {
+        await chamarAPI("excluirCompromisso", { id });
+        mensagem("Compromisso excluído com sucesso!");
+        await carregarDados();
+      } catch (erro) {
+        mensagem("Erro ao excluir: " + erro.message, "erro");
+      }
+    }
+
+    // =====================================================
+    // STATUS
+    // =====================================================
+
+    async function alterarStatus(id) {
+      try {
+        await chamarAPI("alterarStatusCompromisso", { id });
+        await carregarDados();
+        mensagem("Status atualizado com sucesso!");
+      } catch (erro) {
+        mensagem("Erro ao alterar status: " + erro.message, "erro");
+      }
+    }
+
+    $("lista").addEventListener("click", evento => {
+      const botao = evento.target.closest("button[data-acao]");
+      if (!botao) return;
+
+      const id = botao.dataset.id;
+
+      switch (botao.dataset.acao) {
+        case "editar":
+          editarCompromisso(id);
+          break;
+
+        case "excluir":
+          excluirCompromisso(id);
+          break;
+
+        case "status":
+          alterarStatus(id);
+          break;
+      }
+    });
+
+    // =====================================================
+    // HORÁRIO DO LEMBRETE
+    // =====================================================
+
+    async function salvarHorarioAlerta() {
+      const horario = $("horarioAlerta").value;
+
+      if (!horario) {
+        mostrarEstadoPush("Informe um horário válido.", "erro");
+        return;
+      }
+
+      try {
+        await chamarAPI("salvarHorarioAlerta", { horario });
+        configuracoes.horarioAlerta = horario;
+        mostrarEstadoPush("Horário diário salvo com sucesso.", "ok");
+      } catch (erro) {
+        mostrarEstadoPush(
+          "Erro ao salvar horário: " + erro.message,
+          "erro"
+        );
+      }
+    }
+
+    // =====================================================
+    // ONESIGNAL - NOTIFICAÇÕES PUSH
+    // =====================================================
+
+    let oneSignalPronto = false;
+
+    function mostrarEstadoPush(texto, tipo = "") {
+      $("estadoPush").textContent = texto;
+      $("estadoPush").className =
+        "estado" + (tipo ? " " + tipo : "");
+    }
+
+    function aplicativoInstalado() {
+      return window.matchMedia("(display-mode: standalone)").matches ||
+        navigator.standalone === true;
+    }
+
+    function configurarOneSignal() {
+      if (
+        !ONESIGNAL_APP_ID ||
+        ONESIGNAL_APP_ID === "COLOQUE_AQUI_O_APP_ID"
+      ) {
+        mostrarEstadoPush(
+          "O OneSignal ainda não foi configurado. " +
+          "Precisamos informar o App ID e publicar os arquivos do Service Worker.",
+          "aviso"
+        );
+        return;
+      }
+
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        try {
+          await OneSignal.init({
+            appId: ONESIGNAL_APP_ID,
+            serviceWorkerPath: "./OneSignalSDKWorker.js",
+            serviceWorkerParam: {
+              scope: "./"
+            }
+          });
+
+          oneSignalPronto = true;
+
+          mostrarEstadoPush(
+            "Serviço de notificações inicializado. " +
+            "Você pode solicitar a autorização no botão acima.",
+            "ok"
+          );
+
+        } catch (erro) {
+          mostrarEstadoPush(
+            "Erro ao inicializar o serviço de notificações: " + erro.message,
+            "erro"
+          );
+        }
+      });
+    }
+
+    async function ativarPush() {
+      if (!aplicativoInstalado()) {
+        mostrarEstadoPush(
+          "Antes de ativar, abra este site no Safari, toque em Compartilhar " +
+          "e escolha Adicionar à Tela de Início. Depois abra o ícone instalado.",
+          "aviso"
+        );
+        return;
+      }
+
+      if (
+        !ONESIGNAL_APP_ID ||
+        ONESIGNAL_APP_ID === "COLOQUE_AQUI_O_APP_ID"
+      ) {
+        mostrarEstadoPush(
+          "Ainda falta configurar o OneSignal App ID e o Service Worker.",
+          "aviso"
+        );
+        return;
+      }
+
+      if (!oneSignalPronto) {
+        mostrarEstadoPush(
+          "O serviço de notificações ainda está inicializando. Aguarde alguns segundos.",
+          "aviso"
+        );
+        return;
+      }
+
+      try {
+        await OneSignal.Notifications.requestPermission();
+
+        if (OneSignal.Notifications.permission) {
+          await OneSignal.User.PushSubscription.optIn();
+
+          mostrarEstadoPush(
+            "Permissão concedida. O dispositivo está autorizado a receber notificações.",
+            "ok"
+          );
+        } else {
+          mostrarEstadoPush(
+            "A permissão não foi concedida. Verifique os ajustes de notificações do iPhone.",
+            "aviso"
+          );
+        }
+
+      } catch (erro) {
+        mostrarEstadoPush(
+          "Não foi possível ativar as notificações: " + erro.message,
+          "erro"
+        );
+      }
+    }
+
+    async function testarPush() {
+      if (!oneSignalPronto) {
+        mostrarEstadoPush(
+          "O OneSignal ainda não está configurado ou inicializado.",
+          "aviso"
+        );
+        return;
+      }
+
+      try {
+        const inscricao = OneSignal.User.PushSubscription;
+
+        if (!inscricao || !inscricao.optedIn) {
+          mostrarEstadoPush(
+            "Ative as notificações antes de realizar o teste.",
+            "aviso"
+          );
+          return;
+        }
+
+        mostrarEstadoPush(
+          "Dispositivo inscrito. O teste de envio precisa ser disparado pelo painel ou servidor OneSignal.",
+          "ok"
+        );
+
+      } catch (erro) {
+        mostrarEstadoPush(
+          "Erro ao verificar a inscrição: " + erro.message,
+          "erro"
+        );
+      }
+    }
+
+    // =====================================================
+    // EVENTOS E INICIALIZAÇÃO
+    // =====================================================
+
+    $("formulario").addEventListener("submit", salvarCompromisso);
+    $("filtro").addEventListener("change", renderizarLista);
+    $("pesquisa").addEventListener("input", renderizarLista);
+
+    $("data").value = dataLocalHoje();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./OneSignalSDKWorker.js")
+        .catch(erro => {
+          console.error("Erro ao registrar Service Worker:", erro);
+        });
+    }
+
+    configurarOneSignal();
+    carregarDados();
+
+    // Atualização enquanto o aplicativo estiver aberto.
+    setInterval(carregarDados, 60000);
+  </script>
+</body>
+</html>
